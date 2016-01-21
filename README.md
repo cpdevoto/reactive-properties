@@ -35,7 +35,7 @@ The `reactive-properties` library was designed to handle problem domains of this
 
 The creation and removal of bindings between properties is handled implicitly by the framework, so developers are freed from the burden of having to manage this tangled and dynamic network of observer/observable objects. They only need to ensure that each property is given a unique identifier. A collection of properties created with the `reactive-properties` framework is typically encapsulated within one or more objects that can serve as the model component for an MVC application.  In such cases, you will want to register your own property change listeners such that, whenever a property changes, you can make the corresponding updates to your user interface. The framework fully supports this by allowing you to add your own listeners to any given property.
 
-The framework also supports the notion of nested value modifiers, which allow you to decorate a property's value instead of having to rewrite it from scratch every time you want to make a change. In the example cited above, a character might acquire a set of Gauntlets of Ogre power that raise his strength property to a 19 if it is currently below 19, but have no effect if the character's strength is already 19 or higher. This can easily be implemented as a modifier function that takes the character's strength score as an input and returns the adjusted strength score. Modifiers can be chained, and you are provided with some ordering rules for precise control over the order in which the modifiers are executed. Modifiers are extremely useful in that they allow you work with the results of property value computations while treating those computations as black boxes. While working on your 'Gauntlets of Ogre Power' modifier, for instance, you need not concern yourself with the fact that a particular character's strength score is currently affected by six other modifiers. 
+The framework also supports the notion of nested value modifiers, which allow you to decorate a property's value instead of having to rewrite it from scratch every time you want to make a change. In the example cited above, a character might acquire a set of Gauntlets of Ogre Power that raise his strength property to a 19 if it is currently below 19, but have no effect if the character's strength is already 19 or higher. This can easily be implemented as a modifier function that takes the character's strength score as an input and returns the adjusted strength score. Modifiers can be chained, and you are provided with some ordering rules for precise control over the order in which the modifiers are executed. Modifiers are extremely useful in that they allow you work with the results of property value computations while treating those computations as black boxes. While working on your 'Gauntlets of Ogre Power' modifier, for instance, you need not concern yourself with the fact that a particular character's strength score is currently affected by six other modifiers. 
 
 ## Getting Started
 ### Quick Configuration Guide
@@ -80,14 +80,19 @@ public enum Attribute implements Identifier<Integer> {
 Once you have defined the `Identifier` objects for your domain, you can begin to define `Property` objects as shown below:
 
 ```java
+     // First create a property manager to manage all properties
+    // with a given scope (e.g. a single character in an RPG game)
     PropertyManager manager = PropertyManagers.create();
-    Property<Integer> level = valueManager.create(LEVEL)
+
+    // Now create some properties, some with scalar value, and some
+    // with value functions that reference other properties.
+    Property<Integer> level = manager.create(LEVEL)
         .withValidator(
             (value) -> checkArgument(value > 0 && value < 21, "level must be between 1 and 20"))
         .withValue(1)
         .build();
 
-    assertThat(level.get(), equalTo(2)); 
+    assertThat(level.get(), equalTo(1)); 
     
     Property<Integer> proficiencyBonus = manager.create(PROFICIENCY_BONUS)
         .withValue(
@@ -96,9 +101,9 @@ Once you have defined the `Identifier` objects for your domain, you can begin to
     
     assertThat(proficiencyBonus.get(), equalTo(2));        
 
-    Property<Integer> strength = manager.createMutable(STRENGTH)
+    Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-          (value) -> checkArgument(value >= 3 && value <= 18, "strength must be between 3 and 18"))
+          (value) -> checkArgument(value >= 3 && value <= 20, "strength must be between 3 and 18"))
         .withValue(8)   
         .build();
 
@@ -106,29 +111,73 @@ Once you have defined the `Identifier` objects for your domain, you can begin to
 
     Property<Integer> strengthModifier = manager.create(STRENGTH_MOD)
         .withValue((context) -> (context.get(STRENGTH) - 10) / 2)
-        .on(strength) 
         .build();
 
     assertThat(strengthModifier.get(), equalTo(-1));        
 
-    Value<Integer> meleeAttackModifier = manager.create(MELEE_ATTACK_MOD)
+    Property<Integer> meleeAttackModifier = manager.create(MELEE_ATTACK_MOD)
         .withValue(
             (context) -> context.get(STRENGTH_MOD) + context.get(PROFICIENCY_BONUS))
         .build();
     
-    assertThat(meleeAttackModifier.get(), equalTo(1);    
+    assertThat(meleeAttackModifier.get(), equalTo(1));    
         
     // Now let's change the level and strength properties to see if the derived properties are
     // automatically updated.
     
     level.set(5);
-    strength.set(17);
+    strength.set(14);
     
     assertThat(level.get(), equalTo(5));
     assertThat(proficiencyBonus.get(), equalTo(3));
-    assertThat(strength.get(), equalTo(17));
+    assertThat(strength.get(), equalTo(14));
+    assertThat(strengthModifier.get(), equalTo(2));
+    assertThat(meleeAttackModifier.get(), equalTo(5));
+    
+    // Let's add some Gauntlets of Ogre Power
+    ModifierIdentifier gauntlets = strength.addModifier((context, value) -> {
+      if (value >= 19) {
+        return value;
+      }
+      return 19;
+    });
+    
+    assertThat(strength.get(), equalTo(19));
+    assertThat(strengthModifier.get(), equalTo(4));
+    assertThat(meleeAttackModifier.get(), equalTo(7));
+    
+    // Let's add another strength-boosting item, but let's ensure the modifier function
+    // is resolved before the function for the gauntlets.
+    
+    ModifierIdentifier tome = strength.addModifier((context, value) -> {
+      return value + 2;
+    }, before(gauntlets));
+
+    // Since the tome modifier is evaluated before the gauntlets modifier,
+    // the strength score has the expected value 19 as opposed to 21. 
+    // This is exactly what we want.
+    
+    assertThat(strength.get(), equalTo(19)); 
+    assertThat(strengthModifier.get(), equalTo(4));
+    assertThat(meleeAttackModifier.get(), equalTo(7));
+    
+    // Now let's remove the gauntlets; the strength should revert to
+    // 16 instead of 14, because the tome modifier is still in effect.
+    
+    strength.removeModifier(gauntlets);
+    
+    assertThat(strength.get(), equalTo(16)); 
     assertThat(strengthModifier.get(), equalTo(3));
     assertThat(meleeAttackModifier.get(), equalTo(6));
+    
+    // Finally, let's remove the tome; the strength should revert
+    // to it's current unmodified value.
+    
+    strength.removeModifier(tome);
+    
+    assertThat(strength.get(), equalTo(14)); 
+    assertThat(strengthModifier.get(), equalTo(2));
+    assertThat(meleeAttackModifier.get(), equalTo(5));
 ```
 
 
