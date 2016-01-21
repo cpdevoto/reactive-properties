@@ -11,7 +11,7 @@ Suppose that you are creating a "character builder" application for your favorit
 4. **Strength Modifier**: The character's strength modifier is derived from the character's strength, based on the following formula: (strength - 10) / 2.
 5. **Melee Attack Modifier**: The character's melee attack modifier is derived from the character's strength modifier and proficiency bonus based on the following formula: strength modifier + proficiency bonus.
 
-Any time the value of one of the properties changes, we need to ensure that all properties which are derived from it are updated as well. Suppose we have a character with the following base properies:
+Any time the value of one of these properties changes, we need to ensure that all properties which are derived from it are updated as well. Suppose we have a character with the following base properies:
 
 ```
   Level: 1
