@@ -1,5 +1,5 @@
 # reactive-properties
-A Java framework for automatically binding properties to other properties based on custom functions similar to a spreadsheet.
+A Java framework for managing data flows and the propagation of change between different properties based on custom lambda functions, very similar to a spreadsheet.
 
 ## Introduction
 
