@@ -103,7 +103,7 @@ Once you have defined the `Identifier` objects for your domain, you can begin to
 
     Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-          (value) -> checkArgument(value >= 3 && value <= 20, "strength must be between 3 and 18"))
+          (value) -> checkArgument(value >= 3 && value <= 20, "strength must be between 3 and 20"))
         .withValue(8)   
         .build();
 
