@@ -3,7 +3,7 @@ A lightweight Java framework for managing data flows and the propagation of chan
 
 ## Introduction
 
-Suppose that you are creating a "character builder" application for your favorite roleplaying game. Within an application of this sort, a "character" typically consists of a collection of interrelated properties in which the values of certain properties are derived from the values of other properties. Often, these relationships form a complex network of data flows that needs to be reevaluated every time a property changes. Let's imagine, for instance, that your character has the following properties:
+Suppose that you are creating a "character builder" application for your favorite roleplaying game. Within an application of this sort, a "character" typically consists of a collection of interrelated properties in which the values of certain properties are derived from the values of other properties. Often, these relationships form a complex network of data flows that needs to be re-evaluated every time a property changes. Let's imagine, for instance, that your character has the following properties:
 
 1. **Level**: The character's level is a scalar value, and it ranges from 1 to 20.
 2. **Proficiency Bonus**: The character's proficiency bonus is derived from the character's level. From levels 1 to 4, the proficiency bonus is +2. From levels 5 to 8, the proficiency bonus is +3. From levels 9 to 12, the proficiency bonus is +4. From levels 13 to 16, the proficiency bonus is +5. Finally, from levels 17 to 20, the proficiency bonus is +6.
