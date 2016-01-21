@@ -39,7 +39,7 @@ The framework also supports the notion of nested value modifiers, which allow yo
 
 ## Getting Started
 ### Quick Configuration Guide
-To use the `reactive-properties` library, simply add the following repository and dependency to your Gradle script:
+The `reactive-properties` library consists of a single JAR file with dependencies of JVM 8 and `guava-18.0`. To use the `reactive-properties` library, simply add the following repository and dependency to your Gradle script:
 ```
 repositories {
     mavenCentral() 
@@ -55,7 +55,7 @@ dependencies {
 ```
 Maven users can easily adapt these configurations within their POM files.
 
-### Quick Development Guide
+### Quick User Guide
 `Identifier` objects are typically modeled as one or more `enums` that implement the `Identifier` interface, as shown below.  `Identifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties which they correspond to, such as the property type, and the default value which is used in cases where a binding is requested to a property which does not yet exist.
 
 ```java
