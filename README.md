@@ -7,7 +7,7 @@ Suppose that you are creating a "character builder" application for your favorit
 
 1. **Level**: The character's level is a scalar value, and it ranges from 1 to 20.
 2. **Proficiency Bonus**: The character's proficiency bonus is derived from the character's level. From levels 1 to 4, the proficiency bonus is +2. From levels 5 to 8, the proficiency bonus is +3. From levels 9 to 12, the proficiency bonus is +4. From levels 13 to 16, the proficiency bonus is +5. Finally, from levels 17 to 20, the proficiency bonus is +6.
-3. **Strength**: The character's strength is a scalar, and it usually ranges from 3 to 18.
+3. **Strength**: The character's strength is a scalar, and it usually ranges from 3 to 20.
 4. **Strength Modifier**: The character's strength modifier is derived from the character's strength, based on the following formula: (strength - 10) / 2.
 5. **Melee Attack Modifier**: The character's melee attack modifier is derived from the character's strength modifier and proficiency bonus based on the following formula: strength modifier + proficiency bonus.
 
