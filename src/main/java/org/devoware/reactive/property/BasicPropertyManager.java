@@ -160,7 +160,7 @@ class BasicPropertyManager implements PropertyManager {
     public Builder<V> withValue(V value) {
       checkNotNull(value, "value cannot be null");
       checkState();
-      this.valueSource = new FixedValueSource<>(value);
+      this.valueSource = new LiteralValueSource<>(value);
       return this;
     }
 
@@ -227,7 +227,7 @@ class BasicPropertyManager implements PropertyManager {
     public Updater<V> withValue(V value) {
       checkNotNull(value, "value cannot be null");
       checkState();
-      this.valueSource = new FixedValueSource<>(value);
+      this.valueSource = new LiteralValueSource<>(value);
       return this;
     }
 

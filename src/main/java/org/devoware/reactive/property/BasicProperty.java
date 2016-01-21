@@ -35,7 +35,7 @@ class BasicProperty<V> implements Property<V> {
 
   @Override
   public void set(V value) {
-    set(new FixedValueSource<>(value));
+    set(new LiteralValueSource<>(value));
     
   }
 
