@@ -1,5 +1,5 @@
 # reactive-properties
-A lightweight Java framework for managing data flows and the propagation of change between different properties based on custom lambda functions, very similar to a spreadsheet.
+A lightweight Java library and DSL for managing data flows and the propagation of change between different properties based on custom lambda functions, very similar to a spreadsheet (cf. [Reactive Programming](https://en.wikipedia.org/wiki/Reactive_programming)]).
 
 ## Introduction
 
