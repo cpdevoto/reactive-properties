@@ -38,7 +38,7 @@ The creation and removal of bindings between properties is handled implicitly by
 The framework also supports the notion of nested value modifiers, which allow you to decorate a property's value instead of having to rewrite it from scratch every time you want to make a change. In the example cited above, a character might acquire a set of Gauntlets of Ogre power that raise his strength property to a 19 if it is currently below 19, but have no effect if the character's strength is already 19 or higher. This can easily be implemented as a modifier function that takes the character's strength score as an input and returns the adjusted strength score. Modifiers can be chained, and you are provided with some ordering rules for precise control over the order in which the modifiers are executed. Modifiers are extremely useful in that they allow you work with the results of property value computations while treating those computations as black boxes. While working on your 'Gauntlets of Ogre Power' modifier, for instance, you need not concern yourself with the fact that a particular character's strength score is currently affected by six other modifiers. 
 
 ## Getting Started
-### Quick Configuration
+### Quick Configuration Guide
 To use the `reactive-properties` library, simply add the following repository and dependency to your Gradle script:
 ```
 repositories {
@@ -55,7 +55,7 @@ dependencies {
 ```
 Maven users can easily adapt these configurations within their POM files.
 
-### Quick Guide to Development
+### Quick Development Guide
 `Identifier` objects are typically modeled as one or more `enums` that implement the `Identifier` interface, as shown below.  `Identifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties which they correspond to, such as the property type, and the default value which is used in cases where a binding is requested to a property which does not yet exist.
 
 ```java
