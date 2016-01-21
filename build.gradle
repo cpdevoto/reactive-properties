@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+ 
+apply plugin: 'maven'
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: "file:///Users/cdevoto/GitHub/maven-repository/")
+    }
+}
+
+repositories {
+    mavenCentral()
+}    
+    
+group = 'org.devoware'
+version = '1.0.1'
+
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+
+    testCompile 'junit:junit:4.11', 
+                'org.mockito:mockito-core:1.10.19',
+                'org.hamcrest:hamcrest-all:1.3'        
+                
+}
