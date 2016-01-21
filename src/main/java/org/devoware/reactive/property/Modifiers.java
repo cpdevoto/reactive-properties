@@ -103,13 +103,22 @@ class Modifiers<V> {
     return modifiers.get(idx);
   }
   
-  public List<Modifier<V>> values() {
+  private List<Modifier<V>> values() {
     return Lists.newArrayList(modifiers);
   }
   
   public Set<ModifierIdentifier> keySet() {
     return indecesByIdentifier.keySet();
   }
+  
+  public V applyModifiers(PropertyContext<V> context, V value) {
+    V adjustedValue = value;
+    for (Modifier<V> wrapper : modifiers) {
+      adjustedValue = wrapper.onBoundValueChanged(context, adjustedValue);
+    }
+    return adjustedValue;
+  }
+
   
   public int size () {
     return modifiers.size(); 

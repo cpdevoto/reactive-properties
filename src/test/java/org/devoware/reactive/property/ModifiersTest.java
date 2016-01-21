@@ -17,7 +17,6 @@ public class ModifiersTest {
   private static final Modifier<Integer> modifier1 = (context, value) -> value + 1;
   private static final Modifier<Integer> modifier2 = (context, value) -> value + 2;
   private static final Modifier<Integer> modifier3 = (context, value) -> value + 3;
-  private static final Modifier<Integer> modifier4 = (context, value) -> value + 4;
   
   private Modifiers<Integer> modifiers;
   
@@ -89,13 +88,47 @@ public class ModifiersTest {
     assertThat(modifiers.size(), equalTo(3));
   
     modifiers.remove(Identifiers.ID_3);
-  
-    assertThat(modifiers.size(), equalTo(2));
     
     assertThat(modifiers.get(Identifiers.ID_1), equalTo(modifier1));
     assertThat(modifiers.get(Identifiers.ID_2), equalTo(modifier2));
     assertNull(modifiers.get(Identifiers.ID_3));
     
+    assertThat(modifiers.size(), equalTo(2));
+
+    // Check that, if we try to put in an element with the same id twice, it behaves properly
+    
+    modifiers.put(Identifiers.ID_3, modifier3, 2);
+
+    assertThat(modifiers.indexOf(Identifiers.ID_1), equalTo(0));
+    assertThat(modifiers.indexOf(Identifiers.ID_2), equalTo(1));
+    assertThat(modifiers.indexOf(Identifiers.ID_3), equalTo(2));
+    
+    assertThat(modifiers.size(), equalTo(3));
+
+    modifiers.put(Identifiers.ID_3, modifier3, 2);
+
+    assertThat(modifiers.indexOf(Identifiers.ID_1), equalTo(0));
+    assertThat(modifiers.indexOf(Identifiers.ID_2), equalTo(1));
+    assertThat(modifiers.indexOf(Identifiers.ID_3), equalTo(2));
+    
+    assertThat(modifiers.size(), equalTo(3));
+  
+    modifiers.put(Identifiers.ID_3, modifier3, 1);
+
+    assertThat(modifiers.indexOf(Identifiers.ID_1), equalTo(0));
+    assertThat(modifiers.indexOf(Identifiers.ID_2), equalTo(2));
+    assertThat(modifiers.indexOf(Identifiers.ID_3), equalTo(1));
+    
+    assertThat(modifiers.size(), equalTo(3));
+    
+    modifiers.put(Identifiers.ID_3, modifier3, 0);
+
+    assertThat(modifiers.indexOf(Identifiers.ID_1), equalTo(1));
+    assertThat(modifiers.indexOf(Identifiers.ID_2), equalTo(2));
+    assertThat(modifiers.indexOf(Identifiers.ID_3), equalTo(0));
+    
+    assertThat(modifiers.size(), equalTo(3));
+
   }
 
 }

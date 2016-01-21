@@ -3,12 +3,9 @@ package org.devoware.reactive.property;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Optional;
 
 import org.devoware.reactive.property.BasicPropertyManager.Builder;
-
-import com.google.common.collect.Lists;
 
 class BasicProperty<V> implements Property<V> {
 
@@ -34,14 +31,15 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public void set(V value) {
+  public Property<V> set(V value) {
     set(new LiteralValueSource<>(value));
-    
+    return this;
   }
 
   @Override
-  public void set(ValueFunction<V> function) {
+  public Property<V> set(ValueFunction<V> function) {
     set(new ValueFunctionSource<>(function));
+    return this;
   }
 
   @Override
@@ -50,26 +48,30 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public void addPropertyChangeListener(PropertyChangeListener<V> listener) {
+  public Property<V> addPropertyChangeListener(PropertyChangeListener<V> listener) {
     manager.addPropertyChangeListener(this, listener);
+    return this;
   }
 
   @Override
-  public void removePropertyChangeListener(PropertyChangeListener<V> listener) {
+  public Property<V> removePropertyChangeListener(PropertyChangeListener<V> listener) {
     manager.removePropertyChangeListener(this, listener);
+    return this;
   }
 
   @Override
-  public void setValidator(Validator<V> validator) {
+  public Property<V> setValidator(Validator<V> validator) {
     checkNotNull(validator, "validator cannot be null");
     Optional<Validator<V>> v = Optional.of(validator);
-    validate(v, this.valueSource, this.modifiers.values());
+    validate(v, this.valueSource, this.modifiers);
     this.validator = v;
+    return this;
   }
 
   @Override
-  public void removeValidator() {
+  public Property<V> removeValidator() {
     this.validator = Optional.empty();
+    return this;
   }
 
   @Override
@@ -86,41 +88,44 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public void addModifier(ModifierIdentifier id, Modifier<V> modifier) {
+  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier) {
     addModifier(id, modifier, ModifierOrderingRules.last());
+    return this;
   }
   
   @Override
-  public void addModifier(ModifierIdentifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule) {
+  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule) {
     checkNotNull(id, "id cannot be null");
     checkNotNull(modifier, "modifier cannot be null");
     checkNotNull(rule, "rule cannot be null");
     Modifiers<V> modifiers = Modifiers.create(this.modifiers);
     rule.insert(modifiers, id, modifier);
-    validate(this.valueSource, modifiers.values());
+    validate(this.valueSource, modifiers);
     V oldValue = get();
     rule.insert(this.modifiers, id, modifier);
     this.cachedValue = get(this.valueSource);
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
-   }
+    return this;
+  }
 
   @Override
-  public void removeModifier(ModifierIdentifier id) {
+  public Property<V> removeModifier(ModifierIdentifier id) {
     checkNotNull(id, "id cannot be null");
     if (!modifiers.containsKey(id)) {
-      return;
+      return this;
     }
     Modifiers<V> modifiers = Modifiers.create(this.modifiers); 
     modifiers.remove(id);
-    validate(this.valueSource, modifiers.values());
+    validate(this.valueSource, modifiers);
     V oldValue = get();
     this.modifiers.remove(id);
     this.cachedValue = get(this.valueSource);
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
+    return this;
   }
 
   @Override
@@ -154,37 +159,30 @@ class BasicProperty<V> implements Property<V> {
   }
   
   private V get(ValueSource<V> source, boolean createBindings) {
-    return get(source, createBindings, Lists.newLinkedList(this.modifiers.values()));
+    return get(source, createBindings, this.modifiers);
   }
 
-  private V get(ValueSource<V> source, boolean createBindings, List<Modifier<V>> modifiers) {
+  private V get(ValueSource<V> source, boolean createBindings, Modifiers<V> modifiers) {
     PropertyContext<V> context = manager.getPropertyContextFor(this, createBindings);
     V value = source.apply(context);
-    value = applyModifiers(context, value, modifiers);
+    value = modifiers.applyModifiers(context, value);
     return value;
   }
   
   private void validate(ValueSource<V> source) {
-    validate(source, this.modifiers.values());
+    validate(source, this.modifiers);
   }
 
-  private void validate(ValueSource<V> source, List<Modifier<V>> modifiers) {
+  private void validate(ValueSource<V> source, Modifiers<V> modifiers) {
     validate(this.validator, source, modifiers);
   }
 
-  private void validate(Optional<Validator<V>> validator, ValueSource<V> source, List<Modifier<V>> modifiers) {
+  private void validate(Optional<Validator<V>> validator, ValueSource<V> source, Modifiers<V> modifiers) {
     if (validator.isPresent()) {
       V value = get(source, false);
       validator.get().validate(value);
     }
   }
   
-  private V applyModifiers(PropertyContext<V> context, V value, List<Modifier<V>> modifiers2) {
-    V adjustedValue = value;
-    for (Modifier<V> wrapper : modifiers.values()) {
-      adjustedValue = wrapper.onBoundValueChanged(context, adjustedValue);
-    }
-    return adjustedValue;
-  }
 
 }
