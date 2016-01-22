@@ -42,7 +42,7 @@ public class PropertyTest {
     /* @formatter: off */
     Property<Integer> level = manager.create(LEVEL)
         .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "level must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "level must be between 1 and 20"))
         .withValue(1)
         .build();
 
@@ -53,7 +53,7 @@ public class PropertyTest {
 
     Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
         .withValue(8)
         .build();
 
@@ -172,7 +172,7 @@ public class PropertyTest {
     
     Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
         .withValue(8)
         .build();
     strength.addPropertyChangeListener(strengthListener);
@@ -210,7 +210,7 @@ public class PropertyTest {
     try {
       manager.create(STRENGTH)
           .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
           .withValue(24)
           .build();
       fail("Expected an IllegalArgumentException");
@@ -218,7 +218,7 @@ public class PropertyTest {
 
     Property<Integer> level = manager.create(LEVEL)
         .withValidator(
-          (value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
+          (context, value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
         .withValue(1)
         .build();
     Property<Integer> proficiencyBonus = manager.create(PROFICIENCY_BONUS)
@@ -238,7 +238,7 @@ public class PropertyTest {
   public void test_modifiers () {
     Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "strength must be between 1 and 20"))
         .withValue(8)
         .build();
 
@@ -309,7 +309,7 @@ public class PropertyTest {
     // with value functions that reference other properties.
     Property<Integer> level = manager.create(LEVEL)
         .withValidator(
-            (value) -> checkArgument(value > 0 && value < 21, "level must be between 1 and 20"))
+            (context, value) -> checkArgument(value > 0 && value < 21, "level must be between 1 and 20"))
         .withValue(1)
         .build();
 
@@ -324,7 +324,7 @@ public class PropertyTest {
 
     Property<Integer> strength = manager.create(STRENGTH)
         .withValidator(
-          (value) -> checkArgument(value >= 3 && value <= 20, "strength must be between 3 and 18"))
+          (context, value) -> checkArgument(value >= 3 && value <= 20, "strength must be between 3 and 18"))
         .withValue(8)   
         .build();
 

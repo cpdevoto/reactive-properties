@@ -21,8 +21,9 @@ class BasicProperty<V> implements Property<V> {
     this.identifier = builder.getIdentifier();
     this.validator = builder.getValidator();
     this.valueSource = builder.getValueSource();
-    validate(this.valueSource);
+    validate(this.valueSource, false);
     this.cachedValue = get(this.valueSource);
+    validate(this.valueSource, true);
   }
 
   @Override
@@ -63,8 +64,9 @@ class BasicProperty<V> implements Property<V> {
   public Property<V> setValidator(Validator<V> validator) {
     checkNotNull(validator, "validator cannot be null");
     Optional<Validator<V>> v = Optional.of(validator);
-    validate(v, this.valueSource, this.modifiers);
+    validate(v, this.valueSource, this.modifiers, false);
     this.validator = v;
+    validate(v, this.valueSource, this.modifiers, true);
     return this;
   }
 
@@ -100,10 +102,11 @@ class BasicProperty<V> implements Property<V> {
     checkNotNull(rule, "rule cannot be null");
     Modifiers<V> modifiers = Modifiers.create(this.modifiers);
     rule.insert(modifiers, id, modifier);
-    validate(this.valueSource, modifiers);
+    validate(this.valueSource, modifiers,false);
     V oldValue = get();
     rule.insert(this.modifiers, id, modifier);
     this.cachedValue = get(this.valueSource);
+    validate(this.valueSource, modifiers,true);
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
@@ -118,10 +121,11 @@ class BasicProperty<V> implements Property<V> {
     }
     Modifiers<V> modifiers = Modifiers.create(this.modifiers); 
     modifiers.remove(id);
-    validate(this.valueSource, modifiers);
+    validate(this.valueSource, modifiers, false);
     V oldValue = get();
     this.modifiers.remove(id);
     this.cachedValue = get(this.valueSource);
+    validate(this.valueSource, modifiers, false);
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
@@ -135,20 +139,22 @@ class BasicProperty<V> implements Property<V> {
   
   void set(ValueSource<V> source) {
     checkNotNull(source, "source cannot be null");
-    validate(source);
+    validate(source, false);
     V oldValue = get();
     manager.unbind(this);
     this.cachedValue = get(source);
     this.valueSource = source;
+    validate(source, true);
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
   }
 
   void onProducerPropertyValueChange() {
-    validate(this.valueSource);    
+    validate(this.valueSource, false);    
     V oldValue = get();
     this.cachedValue = get(this.valueSource);
+    validate(this.valueSource, true);    
     if (!oldValue.equals(this.cachedValue)) {
       manager.firePropertyValueChange(this);
     }
@@ -169,19 +175,20 @@ class BasicProperty<V> implements Property<V> {
     return value;
   }
   
-  private void validate(ValueSource<V> source) {
-    validate(source, this.modifiers);
+  private void validate(ValueSource<V> source, boolean createBindings) {
+    validate(source, this.modifiers, createBindings);
   }
 
-  private void validate(ValueSource<V> source, Modifiers<V> modifiers) {
-    validate(this.validator, source, modifiers);
+  private void validate(ValueSource<V> source, Modifiers<V> modifiers, boolean createBindings) {
+    validate(this.validator, source, modifiers, createBindings);
   }
 
-  private void validate(Optional<Validator<V>> validator, ValueSource<V> source, Modifiers<V> modifiers) {
-    if (validator.isPresent()) {
+  private void validate(Optional<Validator<V>> validator, ValueSource<V> source, Modifiers<V> modifiers, boolean createBindings) {
+    validator.ifPresent((v) -> {
+      PropertyContext<V> context = manager.getPropertyContextFor(this, createBindings);
       V value = get(source, false);
-      validator.get().validate(value);
-    }
+      v.validate(context, value);
+    });
   }
   
 
