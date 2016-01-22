@@ -74,7 +74,8 @@ public enum Attribute implements Identifier<Integer> {
     return 0;
   }
   
-  @Override Class<Integer> getType {
+  @Override 
+  Class<Integer> getType {
     return Integer.class
   }
 }
