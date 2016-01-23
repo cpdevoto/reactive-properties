@@ -46,9 +46,9 @@ class BasicPropertyManager implements PropertyManager {
     return ImmutableSet.copyOf(producerBindings.get(producer.getId()));
   }
 
-  <V> PropertyContext<V> getPropertyContextFor(BasicProperty<V> consumer, boolean createBindings) {
+  PropertyContext getPropertyContextFor(BasicProperty<?> consumer, boolean createBindings) {
     checkNotNull(consumer, "requestorProperty cannot be null");
-    return new Context<>(consumer, createBindings);
+    return new Context(consumer, createBindings);
   }
 
   <V> void addPropertyChangeListener(BasicProperty<V> property,
@@ -96,7 +96,7 @@ class BasicPropertyManager implements PropertyManager {
   }
 
   
-  private <V> void bind(PropertyIdentifier<V> consumer, PropertyIdentifier<V> producer) {
+  private void bind(PropertyIdentifier<?> consumer, PropertyIdentifier<?> producer) {
     checkNotNull(consumer, "consumer cannot be null");
     checkNotNull(producer, "producer cannot be null");
     checkForCycles(consumer, producer);
@@ -120,17 +120,17 @@ class BasicPropertyManager implements PropertyManager {
     producerBindings.get(consumer).forEach((c) -> checkForCycles(c, producer));
   }
   
-  private class Context <V> implements PropertyContext<V> {
-    private final BasicProperty<V> consumer;
+  private class Context implements PropertyContext {
+    private final BasicProperty<?> consumer;
     private final boolean createBindings;
     
-    private Context(BasicProperty<V> consumer, boolean createBindings) {
+    private Context(BasicProperty<?> consumer, boolean createBindings) {
       checkNotNull(consumer, "consumer cannot be null");
       this.consumer = consumer;
       this.createBindings = createBindings;
     }
 
-    public V get(PropertyIdentifier<V> id) {
+    public <V> V get(PropertyIdentifier<V> id) {
       checkNotNull(id, "id cannot be null");
       if(consumer.getId().equals(id)) {
         throw new CyclicBindingException("A value function cannot reference itself");

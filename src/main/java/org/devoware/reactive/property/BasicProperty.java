@@ -170,7 +170,7 @@ class BasicProperty<V> implements Property<V> {
   }
 
   private V get(ValueSource<V> source, boolean createBindings, Modifiers<V> modifiers) {
-    PropertyContext<V> context = manager.getPropertyContextFor(this, createBindings);
+    PropertyContext context = manager.getPropertyContextFor(this, createBindings);
     V value = source.apply(context);
     value = modifiers.applyModifiers(context, value);
     return value;
@@ -186,7 +186,7 @@ class BasicProperty<V> implements Property<V> {
 
   private void validate(Optional<Validator<V>> validator, ValueSource<V> source, Modifiers<V> modifiers, boolean createBindings) {
     validator.ifPresent((v) -> {
-      PropertyContext<V> context = manager.getPropertyContextFor(this, createBindings);
+      PropertyContext context = manager.getPropertyContextFor(this, createBindings);
       V value = get(source, false);
       v.validate(context, value);
     });

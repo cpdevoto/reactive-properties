@@ -12,7 +12,7 @@ class LiteralValueSource<V> implements ValueSource<V> {
   }
 
   @Override
-  public V apply(PropertyContext<V> context) {
+  public V apply(PropertyContext context) {
     return value;
   }
 

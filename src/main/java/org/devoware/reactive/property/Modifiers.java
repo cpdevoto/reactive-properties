@@ -89,7 +89,7 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     return this;
   }
   
-  V applyModifiers(PropertyContext<V> context, V value) {
+  V applyModifiers(PropertyContext context, V value) {
     checkNotNull(context, "context cannot be null");
     checkNotNull(value, "value cannot be null");
     V adjustedValue = value;

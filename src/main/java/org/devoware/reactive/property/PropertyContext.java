@@ -1,5 +1,5 @@
 package org.devoware.reactive.property;
 
-public interface PropertyContext<V> {
-  public V get(PropertyIdentifier<V> id);
+public interface PropertyContext {
+  public <V> V get(PropertyIdentifier<V> id);
 }
