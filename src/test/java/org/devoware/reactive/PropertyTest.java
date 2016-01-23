@@ -1,7 +1,7 @@
 package org.devoware.reactive;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.devoware.reactive.property.ModifierOrderingRules.before;
+import static org.devoware.reactive.property.ModifierOrderingRules.*;
 import static org.devoware.reactive.testutil.AttributeIdentifier.STRENGTH;
 import static org.devoware.reactive.testutil.AttributeModifierIdentifier.STRENGTH_MOD;
 import static org.devoware.reactive.testutil.PropertyIdentifier.LEVEL;
@@ -254,7 +254,7 @@ public class PropertyTest {
         return value;
       }
       return 19;
-    });
+    }, applyLast());
     
     assertThat(strength.get(), equalTo(19));
     assertThat(strengthModifier.get(), equalTo(4));
@@ -269,7 +269,7 @@ public class PropertyTest {
 
     ModifierIdentifier tomeOfMastery = strength.addModifier((context, value) -> {
       return value + 2;
-    }, before(gauntletsOfOgrePower));
+    });
 
     assertThat(strength.get(), equalTo(19));
     assertThat(strengthModifier.get(), equalTo(4));
@@ -361,18 +361,18 @@ public class PropertyTest {
         return value;
       }
       return 19;
-    });
+    }, applyLast());
     
     assertThat(strength.get(), equalTo(19));
     assertThat(strengthModifier.get(), equalTo(4));
     assertThat(meleeAttackModifier.get(), equalTo(7));
     
-    // Let's add another strength-boosting item, but let's ensure the modifier function
+    // Let's add another strength-boosting item, and ensure the modifier function
     // is resolved before the function for the gauntlets.
     
     ModifierIdentifier tome = strength.addModifier((context, value) -> {
       return value + 2;
-    }, before(gauntlets));
+    });
 
     // Since the tome modifier is evaluated before the gauntlets modifier,
     // the strength score has the expected value 19 as opposed to 21. 

@@ -2,162 +2,147 @@ package org.devoware.reactive.property;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-class Modifiers<V> {
+class Modifiers<V> implements Iterable<Modifier<V>> {
+  private Map<ModifierIdentifier, LinkedList<Modifier<V>>> listsById = Maps.newHashMap();
+  private Map<ModifierIdentifier, Modifier<V>> modifiersById = Maps.newHashMap();
+  private LinkedList<Modifier<V>> firstModifiers = Lists.newLinkedList();
+  private LinkedList<Modifier<V>> modifiers = Lists.newLinkedList();
+  private LinkedList<Modifier<V>> lastModifiers = Lists.newLinkedList();
   
-  private final Map<ModifierIdentifier, Integer> indecesByIdentifier = Maps.newHashMap();
-  private final List<Modifier<V>> modifiers = Lists.newArrayList();
-  
-  public static <V> Modifiers<V> create() {
+  static <V> Modifiers<V> create() {
     return new Modifiers<>();
   }
   
-  public static <V> Modifiers<V> create(Modifiers<V> modifiers) {
+  static <V> Modifiers<V> create(Modifiers<V> modifiers) {
+    checkNotNull(modifiers, "modifiers cannot be null");
     return new Modifiers<>(modifiers);
   }
 
   private Modifiers() {}
 
   private Modifiers(Modifiers<V> modifiers) {
+    this.listsById.putAll(modifiers.listsById);
+    this.modifiersById.putAll(modifiersById);
+    this.firstModifiers.addAll(modifiers.firstModifiers);
     this.modifiers.addAll(modifiers.modifiers);
-    this.indecesByIdentifier.putAll(modifiers.indecesByIdentifier);
+    this.lastModifiers.addAll(modifiers.lastModifiers);
   }
   
-  public void put(final ModifierIdentifier id, final Modifier<V> modifier) {
-    put(id, modifier, size());
-  }
-
-  public void put(final ModifierIdentifier id, final Modifier<V> modifier, final int idx) {
-    checkNotNull(id, "id cannot be null");
-    checkNotNull(id, "modifier cannot be null");
-    int tempIdx = checkIndexOnPut(idx);
-    int oldIdx = -1;
-    final int adjustedIdx;
-    if (indecesByIdentifier.containsKey(id)) {
-      oldIdx = indecesByIdentifier.get(id);
-      if (oldIdx != -1) {
-        modifiers.remove(oldIdx);
-        indecesByIdentifier.remove(id);
-        shift(oldIdx, -1);
-        if (oldIdx < idx) {
-          tempIdx -= 1;
-        }
-      }
-      adjustedIdx = tempIdx;
-    } else {
-      adjustedIdx = idx;
-    }
-    modifiers.add(adjustedIdx, modifier);
-    shift(adjustedIdx, 1);
-    indecesByIdentifier.put(id, adjustedIdx);
-    
-  }
-
-  public boolean remove(final ModifierIdentifier id) {
-    final int idx = indexOf(id);
-    if (idx == -1) {
-      return false;
-    }
-    modifiers.remove(idx);
-    indecesByIdentifier.remove(id);
-    shift(idx, -1);
-    return true;
+  Set<ModifierIdentifier> keySet() {
+    return listsById.keySet();
   }
   
-  public void remove(final int idx) {
-    checkIndexOnGet(idx);
-    ModifierIdentifier id = getIdentifier(idx);
-    remove(id);
+  boolean containsKey(ModifierIdentifier id) {
+    check(id);
+    return listsById.containsKey(id);
   }
   
-  public int indexOf(final ModifierIdentifier id) {
-    checkNotNull(id, "id cannot be null");
-    int idx = -1;
-    if (indecesByIdentifier.containsKey(id)) {
-      idx = indecesByIdentifier.get(id);
-    }
-    return idx;
+  int size() {
+    return listsById.size();
   }
   
-  public boolean containsKey(ModifierIdentifier id) {
-    return indecesByIdentifier.containsKey(id);
+  boolean isEmpty() {
+    return listsById.isEmpty();
   }
   
-  public Modifier<V> get(final int idx) {
-     checkIndexOnGet(idx);
-     return modifiers.get(idx);
+  Modifier<V> get(ModifierIdentifier id) {
+    check(id);
+    return modifiersById.get(id);
   }
   
-  public Modifier<V> get(final ModifierIdentifier id) {
-    int idx = indexOf(id);
-    if (idx == -1) {
-      return null;
-    }
-    return modifiers.get(idx);
+  Modifiers<V> applyFirst(ModifierIdentifier id, Modifier<V> modifier) {
+    check(id).check(modifier);
+    removeIfPresent(id, modifier);
+    index(firstModifiers, id, modifier);
+    firstModifiers.addFirst(modifier);
+    return this;
   }
   
-  private List<Modifier<V>> values() {
-    return Lists.newArrayList(modifiers);
+  Modifiers<V> apply(ModifierIdentifier id, Modifier<V> modifier) {
+    check(id).check(modifier);
+    removeIfPresent(id, modifier);
+    index(modifiers, id, modifier);
+    modifiers.add(modifier);
+    return this;
   }
   
-  public Set<ModifierIdentifier> keySet() {
-    return indecesByIdentifier.keySet();
+  Modifiers<V> applyLast(ModifierIdentifier id, Modifier<V> modifier) {
+    check(id).check(modifier);
+    removeIfPresent(id, modifier);
+    index(lastModifiers, id, modifier);
+    lastModifiers.addLast(modifier);
+    return this;
   }
   
-  public V applyModifiers(PropertyContext<V> context, V value) {
+  Modifiers<V> remove(ModifierIdentifier id) {
+    check(id);
+    removeIfPresent(id);
+    return this;
+  }
+  
+  V applyModifiers(PropertyContext<V> context, V value) {
+    checkNotNull(context, "context cannot be null");
+    checkNotNull(value, "value cannot be null");
     V adjustedValue = value;
-    for (Modifier<V> wrapper : modifiers) {
-      adjustedValue = wrapper.onBoundValueChanged(context, adjustedValue);
+    for (Modifier<V> modifier: this) {
+      adjustedValue = modifier.onBoundValueChanged(context, adjustedValue);
     }
     return adjustedValue;
   }
-
   
-  public int size () {
-    return modifiers.size(); 
-  }
-
-  private int checkIndexOnPut(final int idx) {
-    return checkIndex(idx, idx < 0 || idx > size());
-  }
-  
-  private int checkIndexOnGet(final int idx) {
-    return checkIndex(idx, idx < 0 || idx >= size());
+  @Override
+  public Iterator<Modifier<V>> iterator() {
+    return Iterators.concat(
+        firstModifiers.iterator(),
+        modifiers.iterator(),
+        lastModifiers.iterator());
   }
   
-  private int checkIndex(final int idx, final boolean condition) {
-    if (condition) {
-      throw new ArrayIndexOutOfBoundsException("idx must be between 0 and " + size());
+  private void index(LinkedList<Modifier<V>> list, ModifierIdentifier id, Modifier<V> modifier) {
+    listsById.put(id, list);
+    modifiersById.put(id, modifier);
+  }
+  
+  private void removeIfPresent(ModifierIdentifier id) {
+    LinkedList<Modifier<V>> list = listsById.get(id);
+    if (list == null) {
+      return;
     }
-    return idx;
+    Modifier<V> modifier = modifiersById.get(id);
+    remove(list, id, modifier);
   }
 
-  private ModifierIdentifier getIdentifier(int idx) {
-    for (Entry<ModifierIdentifier, Integer> entry : indecesByIdentifier.entrySet()) {
-      if (entry.getValue() == idx) {
-        return entry.getKey();
-      }
+  private void removeIfPresent(ModifierIdentifier id, Modifier<V> modifier) {
+    LinkedList<Modifier<V>> list = listsById.get(id);
+    if (list == null) {
+      return;
     }
-    throw new AssertionError("Expected to find a ModifierIdentifier at the specified index");
+    remove(list, id, modifier);
   }
 
-  private void shift(final int idx, final int increment) {
-    final Map<ModifierIdentifier, Integer> shiftedModifiers = Maps.newHashMap();
-    indecesByIdentifier.entrySet().forEach((entry) -> {
-      if (entry.getValue() >= idx) {
-        shiftedModifiers.put(entry.getKey(), entry.getValue() + increment);
-      }
-    });
-    shiftedModifiers.entrySet().forEach((entry) -> {
-      indecesByIdentifier.put(entry.getKey(), entry.getValue());
-    });
+  private void remove(LinkedList<Modifier<V>> list, ModifierIdentifier id, Modifier<V> modifier) {
+    list.remove(modifier);
+    listsById.remove(id);
+    modifiersById.remove(id);
+  }
+
+  private Modifiers<V> check(ModifierIdentifier id) {
+    checkNotNull(id, "id cannot be null");
+    return this;
   }
   
+  private Modifiers<V> check(Modifier<V> modifier) {
+    checkNotNull(modifier, "modifier cannot be null");
+    return this;
+  }
+
 }

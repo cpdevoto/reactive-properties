@@ -1,6 +1,7 @@
 package org.devoware.reactive.property;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.devoware.reactive.property.ModifierOrderingRules.apply;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -78,7 +79,7 @@ class BasicProperty<V> implements Property<V> {
 
   @Override
   public ModifierIdentifier addModifier(Modifier<V> modifier) {
-    return addModifier(modifier, ModifierOrderingRules.last());
+    return addModifier(modifier, apply());
   }
   
   @Override
@@ -91,7 +92,7 @@ class BasicProperty<V> implements Property<V> {
 
   @Override
   public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier) {
-    addModifier(id, modifier, ModifierOrderingRules.last());
+    addModifier(id, modifier, apply());
     return this;
   }
   
