@@ -6,6 +6,8 @@ public interface PropertyManager {
 
   public <V> Builder<V> create(PropertyIdentifier<V> id);
 
+  public <V> PropertyManager remove(PropertyIdentifier<V> id);
+
   public <V> Property<V> get(PropertyIdentifier<V> id);
   
   public Set<PropertyIdentifier<?>> getConsumerBindings(Property<?> consumer);

@@ -7,6 +7,8 @@ import static org.devoware.reactive.testutil.AttributeModifier.STRENGTH_MOD;
 import static org.devoware.reactive.testutil.BasicProperty.LEVEL;
 import static org.devoware.reactive.testutil.BasicProperty.MELEE_ATTACK_MOD;
 import static org.devoware.reactive.testutil.BasicProperty.PROFICIENCY_BONUS;
+import static org.devoware.reactive.testutil.Sense.DARKVISION;
+import static org.devoware.reactive.testutil.SenseDistance.DARKVISION_DISTANCE;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -24,6 +26,8 @@ import org.devoware.reactive.property.Property;
 import org.devoware.reactive.property.PropertyChangeListener;
 import org.devoware.reactive.property.PropertyManager;
 import org.devoware.reactive.property.PropertyManagers;
+import org.devoware.reactive.testutil.Sense;
+import org.devoware.reactive.testutil.SenseDistance;
 import org.devoware.reactive.testutil.ValueMaps;
 import org.junit.Before;
 import org.junit.Test;
@@ -399,5 +403,26 @@ public class PropertyTest {
     assertThat(strength.get(), equalTo(14)); 
     assertThat(strengthModifier.get(), equalTo(2));
     assertThat(meleeAttackModifier.get(), equalTo(5));
+  }
+  
+  @Test
+  public void test_remove() {
+    manager.create(DARKVISION)
+      .withValue((context) -> "Darkvision (" + context.get(DARKVISION_DISTANCE) + " ft.)")
+      .build();
+
+    Property<Integer> darkvisionDistance = manager.create(DARKVISION_DISTANCE)
+      .withValue(60)
+      .build();
+    
+    assertThat(manager.get(DARKVISION).get(), equalTo("Darkvision (60 ft.)"));
+    
+    darkvisionDistance.set(120);
+    
+    assertThat(manager.get(DARKVISION).get(), equalTo("Darkvision (120 ft.)"));
+    
+    manager.remove(DARKVISION_DISTANCE);
+
+    assertThat(manager.get(DARKVISION).get(), equalTo("Darkvision (0 ft.)"));
   }
 }

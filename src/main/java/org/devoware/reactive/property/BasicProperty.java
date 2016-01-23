@@ -142,7 +142,7 @@ class BasicProperty<V> implements Property<V> {
     checkNotNull(source, "source cannot be null");
     validate(source, false);
     V oldValue = get();
-    manager.unbind(this);
+    manager.unbindConsumer(this);
     this.cachedValue = get(source);
     this.valueSource = source;
     validate(source, true);

@@ -28,6 +28,15 @@ class BasicPropertyManager implements PropertyManager {
     }
     return new Builder<>(id);
   }
+  
+  @Override
+  public <V> PropertyManager remove(PropertyIdentifier<V> id) {
+    Property<V> property = get(id);
+    properties.remove(id);
+    unbindConsumer(property);
+    unbindProducer(property);
+    return this;
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -65,7 +74,19 @@ class BasicPropertyManager implements PropertyManager {
     listeners.remove(property.getId(), listener);
   }
 
-  <V> void unbind(Property<V> consumer) {
+  @SuppressWarnings("unchecked")
+  <V> void firePropertyValueChange(Property<V> producer) {
+    listeners.get(producer.getId()).forEach((listener) -> {
+      PropertyChangeListener<V> typedListener = (PropertyChangeListener<V>) listener;
+      typedListener.onValueChanged(producer.getId(), producer.get());;
+    });
+  
+    producerBindings.get(producer.getId()).forEach((consumer) -> {
+      getBasicProperty(consumer).onProducerPropertyValueChange();
+    });
+  }
+
+  <V> void unbindConsumer(Property<V> consumer) {
     checkNotNull(consumer, "consumer cannot be null");
     consumerBindings.get(consumer.getId()).forEach((producer) -> {
       producerBindings.remove(producer, consumer.getId());
@@ -73,16 +94,13 @@ class BasicPropertyManager implements PropertyManager {
     consumerBindings.removeAll(consumer.getId());
   }
   
-  @SuppressWarnings("unchecked")
-  <V> void firePropertyValueChange(Property<V> producer) {
-    listeners.get(producer.getId()).forEach((listener) -> {
-      PropertyChangeListener<V> typedListener = (PropertyChangeListener<V>) listener;
-      typedListener.onValueChanged(producer.getId(), producer.get());;
-    });
-
+  private <V> void unbindProducer(Property<V> producer) {
+    checkNotNull(producer, "producer cannot be null");
     producerBindings.get(producer.getId()).forEach((consumer) -> {
+      consumerBindings.remove(consumer, producer.getId());
       getBasicProperty(consumer).onProducerPropertyValueChange();
     });
+    producerBindings.removeAll(producer.getId());
   }
 
   private <V> void register(BasicProperty<V> property) {
