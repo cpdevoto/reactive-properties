@@ -58,10 +58,10 @@ dependencies {
 Maven users can easily adapt these configurations within their POM files.
 
 ### Quick User Guide
-`Identifier` objects are typically modeled as one or more `enums` that implement the `Identifier` interface, as shown below.  `Identifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties which they correspond to, such as the property type, and the default value which is used in cases where a binding is requested to a property which does not yet exist.
+`PorpertyIdentifier` objects are typically modeled as one or more `enums` that implement the `PropertyIdentifier` interface, as shown below.  `ProperyIdentifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties which they correspond to, such as the property type, and the default value which is used in cases where a binding is requested to a property which does not yet exist.
 
 ```java
-public enum Attribute implements Identifier<Integer> {
+public enum Attribute implements PropertyIdentifier<Integer> {
   STRENGTH, 
   DEXTERITY, 
   CONSTITUTION, 
@@ -80,7 +80,7 @@ public enum Attribute implements Identifier<Integer> {
   }
 }
 ```
-Once you have defined the `Identifier` objects for your domain, you can begin to define `Property` objects as shown below:
+Once you have defined the `PropertyIdentifier` objects for your domain, you can begin to define `Property` objects as shown below:
 
 ```java
      // First create a property manager to manage all properties
@@ -137,22 +137,25 @@ Once you have defined the `Identifier` objects for your domain, you can begin to
     assertThat(strengthModifier.get(), equalTo(2));
     assertThat(meleeAttackModifier.get(), equalTo(5));
     
-    // Let's add some Gauntlets of Ogre Power
-    ModifierIdentifier gauntlets = strength.addModifier((context, value) -> {
+    // Let's add some Gauntlets of Ogre Power, including an "apply last" ordering
+    // rule so that the maodifier for the gauntlets is applied after other modifiers
+    // are applied.  We'll see why this is important below.
+    
+    Identifier gauntlets = strength.addModifier((context, value) -> {
       if (value >= 19) {
         return value;
       }
       return 19;
-    });
+    }, applyLast());
     
     assertThat(strength.get(), equalTo(19));
     assertThat(strengthModifier.get(), equalTo(4));
     assertThat(meleeAttackModifier.get(), equalTo(7));
     
-    // Let's add another strength-boosting item, but let's ensure the modifier function
-    // is resolved before the function for the gauntlets.
+    // Let's add another strength-boosting item, and let's ensure the modifier function
+    // is resolved after the modifier function for the gauntlets.
     
-    ModifierIdentifier tome = strength.addModifier((context, value) -> {
+    Identifier tome = strength.addModifier((context, value) -> {
       return value + 2;
     }, before(gauntlets));
 
