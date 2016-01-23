@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class ModifiersTest {
   
-  private static enum Identifiers implements ModifierIdentifier {
+  private static enum Identifiers implements Identifier {
     ID_1, ID_2, ID_3, ID_4, ID_5;
   }
   

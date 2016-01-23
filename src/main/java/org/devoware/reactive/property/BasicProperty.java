@@ -11,7 +11,7 @@ import org.devoware.reactive.property.BasicPropertyManager.Builder;
 class BasicProperty<V> implements Property<V> {
 
   private final BasicPropertyManager manager;
-  private final Identifier<V> identifier;
+  private final PropertyIdentifier<V> identifier;
   private final Modifiers<V> modifiers = Modifiers.create();
   private ValueSource<V> valueSource;
   private V cachedValue;
@@ -28,7 +28,7 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public Identifier<V> getId() {
+  public PropertyIdentifier<V> getId() {
     return identifier;
   }
 
@@ -78,26 +78,26 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public ModifierIdentifier addModifier(Modifier<V> modifier) {
+  public Identifier addModifier(Modifier<V> modifier) {
     return addModifier(modifier, apply());
   }
   
   @Override
-  public ModifierIdentifier addModifier(Modifier<V> modifier, ModifierOrderingRule<V> rule) {
+  public Identifier addModifier(Modifier<V> modifier, ModifierOrderingRule<V> rule) {
     checkNotNull(modifier, "modifier cannot be null");
-    ModifierIdentifier id = new ModifierIdentifier () {};
+    Identifier id = new Identifier () {};
     addModifier(id, modifier, rule);
     return id;
   }
 
   @Override
-  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier) {
+  public Property<V> addModifier(Identifier id, Modifier<V> modifier) {
     addModifier(id, modifier, apply());
     return this;
   }
   
   @Override
-  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule) {
+  public Property<V> addModifier(Identifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule) {
     checkNotNull(id, "id cannot be null");
     checkNotNull(modifier, "modifier cannot be null");
     checkNotNull(rule, "rule cannot be null");
@@ -115,7 +115,7 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public Property<V> removeModifier(ModifierIdentifier id) {
+  public Property<V> removeModifier(Identifier id) {
     checkNotNull(id, "id cannot be null");
     if (!modifiers.containsKey(id)) {
       return this;
@@ -134,7 +134,7 @@ class BasicProperty<V> implements Property<V> {
   }
 
   @Override
-  public Iterator<ModifierIdentifier> getModifierIdentifiers() {
+  public Iterator<Identifier> getModifierIdentifiers() {
     return this.modifiers.keySet().iterator();
   }
   

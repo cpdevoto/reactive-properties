@@ -16,7 +16,7 @@ public class ModifierOrderingRules {
     return new ApplyLast<>();
   }
   
-  private static <V> void checkArguments(Modifiers<V> modifiers, ModifierIdentifier id, Modifier<V> modifier) {
+  private static <V> void checkArguments(Modifiers<V> modifiers, Identifier id, Modifier<V> modifier) {
     checkNotNull(modifiers, "modifiers cannot be null");
     checkNotNull(id, "id cannot be null");
     checkNotNull(modifier, "modifier cannot be null");
@@ -27,7 +27,7 @@ public class ModifierOrderingRules {
   private static class ApplyFirst<V> implements ModifierOrderingRule<V> {
 
     @Override
-    public void insert(Modifiers<V> modifiers, ModifierIdentifier id, Modifier<V> modifier) {
+    public void insert(Modifiers<V> modifiers, Identifier id, Modifier<V> modifier) {
       checkArguments(modifiers, id, modifier);
       modifiers.applyFirst(id, modifier);
     }
@@ -36,7 +36,7 @@ public class ModifierOrderingRules {
   private static class Apply<V> implements ModifierOrderingRule<V> {
 
     @Override
-    public void insert(Modifiers<V> modifiers, ModifierIdentifier id, Modifier<V> modifier) {
+    public void insert(Modifiers<V> modifiers, Identifier id, Modifier<V> modifier) {
       checkArguments(modifiers, id, modifier);
       modifiers.apply(id, modifier);
     }
@@ -45,7 +45,7 @@ public class ModifierOrderingRules {
   private static class ApplyLast<V> implements ModifierOrderingRule<V> {
 
     @Override
-    public void insert(Modifiers<V> modifiers, ModifierIdentifier id, Modifier<V> modifier) {
+    public void insert(Modifiers<V> modifiers, Identifier id, Modifier<V> modifier) {
       checkArguments(modifiers, id, modifier);
       modifiers.applyLast(id, modifier);
     }

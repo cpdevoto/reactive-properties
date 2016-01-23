@@ -2,11 +2,11 @@ package org.devoware.reactive;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.devoware.reactive.property.ModifierOrderingRules.*;
-import static org.devoware.reactive.testutil.AttributeIdentifier.STRENGTH;
-import static org.devoware.reactive.testutil.AttributeModifierIdentifier.STRENGTH_MOD;
-import static org.devoware.reactive.testutil.PropertyIdentifier.LEVEL;
-import static org.devoware.reactive.testutil.PropertyIdentifier.MELEE_ATTACK_MOD;
-import static org.devoware.reactive.testutil.PropertyIdentifier.PROFICIENCY_BONUS;
+import static org.devoware.reactive.testutil.Attribute.STRENGTH;
+import static org.devoware.reactive.testutil.AttributeModifier.STRENGTH_MOD;
+import static org.devoware.reactive.testutil.BasicProperty.LEVEL;
+import static org.devoware.reactive.testutil.BasicProperty.MELEE_ATTACK_MOD;
+import static org.devoware.reactive.testutil.BasicProperty.PROFICIENCY_BONUS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -18,8 +18,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.devoware.reactive.property.CyclicBindingException;
+import org.devoware.reactive.property.PropertyIdentifier;
 import org.devoware.reactive.property.Identifier;
-import org.devoware.reactive.property.ModifierIdentifier;
 import org.devoware.reactive.property.Property;
 import org.devoware.reactive.property.PropertyChangeListener;
 import org.devoware.reactive.property.PropertyManager;
@@ -249,7 +249,7 @@ public class PropertyTest {
     assertThat(strength.get(), equalTo(8));
     assertThat(strengthModifier.get(), equalTo(-1));
 
-    ModifierIdentifier gauntletsOfOgrePower = strength.addModifier((context, value) -> {
+    Identifier gauntletsOfOgrePower = strength.addModifier((context, value) -> {
       if (value >= 19) {
         return value;
       }
@@ -267,7 +267,7 @@ public class PropertyTest {
     assertThat(strength.get(), equalTo(19));
     assertThat(strengthModifier.get(), equalTo(4));
 
-    ModifierIdentifier tomeOfMastery = strength.addModifier((context, value) -> {
+    Identifier tomeOfMastery = strength.addModifier((context, value) -> {
       return value + 2;
     });
 
@@ -285,7 +285,7 @@ public class PropertyTest {
     assertThat(strengthModifier.get(), equalTo(2));
   }
 
-  private static enum PropertyId implements Identifier<Integer> {
+  private static enum PropertyId implements PropertyIdentifier<Integer> {
     PROPERTY1, PROPERTY2, PROPERTY3;
   
     @Override
@@ -356,7 +356,7 @@ public class PropertyTest {
     assertThat(meleeAttackModifier.get(), equalTo(5));
     
     // Let's add some Gauntlets of Ogre Power
-    ModifierIdentifier gauntlets = strength.addModifier((context, value) -> {
+    Identifier gauntlets = strength.addModifier((context, value) -> {
       if (value >= 19) {
         return value;
       }
@@ -370,7 +370,7 @@ public class PropertyTest {
     // Let's add another strength-boosting item, and ensure the modifier function
     // is resolved before the function for the gauntlets.
     
-    ModifierIdentifier tome = strength.addModifier((context, value) -> {
+    Identifier tome = strength.addModifier((context, value) -> {
       return value + 2;
     });
 

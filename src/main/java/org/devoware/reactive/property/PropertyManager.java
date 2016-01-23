@@ -4,13 +4,13 @@ import java.util.Set;
 
 public interface PropertyManager {
 
-  public <V> Builder<V> create(Identifier<V> id);
+  public <V> Builder<V> create(PropertyIdentifier<V> id);
 
-  public <V> Property<V> get(Identifier<V> id);
+  public <V> Property<V> get(PropertyIdentifier<V> id);
   
-  public Set<Identifier<?>> getConsumerBindings(Property<?> consumer);
+  public Set<PropertyIdentifier<?>> getConsumerBindings(Property<?> consumer);
  
-  public Set<Identifier<?>> getProducerBindings(Property<?> producer);
+  public Set<PropertyIdentifier<?>> getProducerBindings(Property<?> producer);
   
   public interface Builder<V> {
      

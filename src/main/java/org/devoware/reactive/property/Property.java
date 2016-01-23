@@ -2,7 +2,9 @@ package org.devoware.reactive.property;
 
 import java.util.Iterator;
 
-public interface Property<V> extends Identifiable<V> {
+public interface Property<V> {
+
+  public PropertyIdentifier<V> getId();
 
   public Property<V> set(V value);
   
@@ -18,16 +20,16 @@ public interface Property<V> extends Identifiable<V> {
 
   public Property<V> removeValidator();
 
-  public ModifierIdentifier addModifier(Modifier<V> modifier);
+  public Identifier addModifier(Modifier<V> modifier);
 
-  public ModifierIdentifier addModifier(Modifier<V> modifier, ModifierOrderingRule<V> rule);
+  public Identifier addModifier(Modifier<V> modifier, ModifierOrderingRule<V> rule);
 
-  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier);
+  public Property<V> addModifier(Identifier id, Modifier<V> modifier);
 
-  public Property<V> addModifier(ModifierIdentifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule);
+  public Property<V> addModifier(Identifier id, Modifier<V> modifier, ModifierOrderingRule<V> rule);
 
-  public Property<V> removeModifier(ModifierIdentifier id);
+  public Property<V> removeModifier(Identifier id);
 
-  public Iterator<ModifierIdentifier> getModifierIdentifiers();
+  public Iterator<Identifier> getModifierIdentifiers();
   
 }

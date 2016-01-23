@@ -1,12 +1,10 @@
 package org.devoware.reactive.testutil;
 
-import org.devoware.reactive.property.Identifier;
+import org.devoware.reactive.property.PropertyIdentifier;
 
-public enum PropertyIdentifier implements Identifier<Integer> {
+public enum AttributeModifier implements PropertyIdentifier<Integer> {
   /* @formatter: off */
-  PROFICIENCY_BONUS, 
-  LEVEL, 
-  MELEE_ATTACK_MOD;
+  STRENGTH_MOD;
   /* @formatter: on */
 
   @Override
@@ -18,5 +16,5 @@ public enum PropertyIdentifier implements Identifier<Integer> {
   public Class<Integer> getType() {
     return Integer.class;
   }
-
+  
 }

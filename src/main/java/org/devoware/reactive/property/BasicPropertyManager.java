@@ -13,14 +13,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 class BasicPropertyManager implements PropertyManager {
-  private final Map<Identifier<?>, BasicProperty<?>> properties = Maps.newConcurrentMap();
-  private final Multimap<Identifier<?>, Identifier<?>> consumerBindings = LinkedHashMultimap.create();
-  private final Multimap<Identifier<?>, Identifier<?>> producerBindings = LinkedHashMultimap.create();
-  private final Multimap<Identifier<?>, PropertyChangeListener<?>> listeners =
+  private final Map<PropertyIdentifier<?>, BasicProperty<?>> properties = Maps.newConcurrentMap();
+  private final Multimap<PropertyIdentifier<?>, PropertyIdentifier<?>> consumerBindings = LinkedHashMultimap.create();
+  private final Multimap<PropertyIdentifier<?>, PropertyIdentifier<?>> producerBindings = LinkedHashMultimap.create();
+  private final Multimap<PropertyIdentifier<?>, PropertyChangeListener<?>> listeners =
       LinkedListMultimap.create();
 
   @Override
-  public <V> PropertyManager.Builder<V> create(Identifier<V> id) {
+  public <V> PropertyManager.Builder<V> create(PropertyIdentifier<V> id) {
     checkNotNull(id, "id cannot be null");
     BasicProperty<V> property = getBasicProperty(id);
     if (property != null) {
@@ -31,18 +31,18 @@ class BasicPropertyManager implements PropertyManager {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <V> Property<V> get(Identifier<V> id) {
+  public <V> Property<V> get(PropertyIdentifier<V> id) {
     checkNotNull(id, "id cannot be null");
     return (Property<V>) properties.get(id);
   }
   
   @Override
-  public Set<Identifier<?>> getConsumerBindings(Property<?> consumer) {
+  public Set<PropertyIdentifier<?>> getConsumerBindings(Property<?> consumer) {
     return ImmutableSet.copyOf(consumerBindings.get(consumer.getId()));
   }
   
   @Override
-  public Set<Identifier<?>> getProducerBindings(Property<?> producer) {
+  public Set<PropertyIdentifier<?>> getProducerBindings(Property<?> producer) {
     return ImmutableSet.copyOf(producerBindings.get(producer.getId()));
   }
 
@@ -90,13 +90,13 @@ class BasicPropertyManager implements PropertyManager {
   }
   
   @SuppressWarnings("unchecked")
-  private <V> BasicProperty<V> getBasicProperty(Identifier<V> id) {
+  private <V> BasicProperty<V> getBasicProperty(PropertyIdentifier<V> id) {
     checkNotNull(id, "id cannot be null");
     return (BasicProperty<V>) properties.get(id);
   }
 
   
-  private <V> void bind(Identifier<V> consumer, Identifier<V> producer) {
+  private <V> void bind(PropertyIdentifier<V> consumer, PropertyIdentifier<V> producer) {
     checkNotNull(consumer, "consumer cannot be null");
     checkNotNull(producer, "producer cannot be null");
     checkForCycles(consumer, producer);
@@ -104,7 +104,7 @@ class BasicPropertyManager implements PropertyManager {
     producerBindings.put(producer, consumer);
   }
   
-  private <V> V getValue(Identifier<V> id) {
+  private <V> V getValue(PropertyIdentifier<V> id) {
     checkNotNull(id, "id cannot be null");
     Property<V> property = get(id);
     if (property == null) {
@@ -113,7 +113,7 @@ class BasicPropertyManager implements PropertyManager {
     return property.get();
   }
   
-  private void checkForCycles(Identifier<?> consumer, Identifier<?> producer) {
+  private void checkForCycles(PropertyIdentifier<?> consumer, PropertyIdentifier<?> producer) {
     if (producer == consumer) {
       throw new CyclicBindingException();
     }
@@ -130,7 +130,7 @@ class BasicPropertyManager implements PropertyManager {
       this.createBindings = createBindings;
     }
 
-    public V get(Identifier<V> id) {
+    public V get(PropertyIdentifier<V> id) {
       checkNotNull(id, "id cannot be null");
       if(consumer.getId().equals(id)) {
         throw new CyclicBindingException("A value function cannot reference itself");
@@ -146,12 +146,12 @@ class BasicPropertyManager implements PropertyManager {
   }
 
   class Builder<V> implements PropertyManager.Builder<V> {
-    private final Identifier<V> identifier;
+    private final PropertyIdentifier<V> identifier;
     private ValueSource<V> valueSource;
     private Optional<Validator<V>> validator = Optional.empty();
     private BuilderState state = BuilderState.OPEN;
 
-    private Builder(Identifier<V> identifier) {
+    private Builder(PropertyIdentifier<V> identifier) {
       checkNotNull(identifier, "identifier cannot be null");
       this.identifier = identifier;
     }
@@ -180,7 +180,7 @@ class BasicPropertyManager implements PropertyManager {
       return this;
     }
     
-    Identifier<V> getIdentifier() {
+    PropertyIdentifier<V> getIdentifier() {
       return identifier;
     }
     

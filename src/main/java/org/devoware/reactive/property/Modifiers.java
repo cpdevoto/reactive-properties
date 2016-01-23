@@ -12,8 +12,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 class Modifiers<V> implements Iterable<Modifier<V>> {
-  private Map<ModifierIdentifier, LinkedList<Modifier<V>>> listsById = Maps.newHashMap();
-  private Map<ModifierIdentifier, Modifier<V>> modifiersById = Maps.newHashMap();
+  private Map<Identifier, LinkedList<Modifier<V>>> listsById = Maps.newHashMap();
+  private Map<Identifier, Modifier<V>> modifiersById = Maps.newHashMap();
   private LinkedList<Modifier<V>> firstModifiers = Lists.newLinkedList();
   private LinkedList<Modifier<V>> modifiers = Lists.newLinkedList();
   private LinkedList<Modifier<V>> lastModifiers = Lists.newLinkedList();
@@ -37,11 +37,11 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     this.lastModifiers.addAll(modifiers.lastModifiers);
   }
   
-  Set<ModifierIdentifier> keySet() {
+  Set<Identifier> keySet() {
     return listsById.keySet();
   }
   
-  boolean containsKey(ModifierIdentifier id) {
+  boolean containsKey(Identifier id) {
     check(id);
     return listsById.containsKey(id);
   }
@@ -54,12 +54,12 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     return listsById.isEmpty();
   }
   
-  Modifier<V> get(ModifierIdentifier id) {
+  Modifier<V> get(Identifier id) {
     check(id);
     return modifiersById.get(id);
   }
   
-  Modifiers<V> applyFirst(ModifierIdentifier id, Modifier<V> modifier) {
+  Modifiers<V> applyFirst(Identifier id, Modifier<V> modifier) {
     check(id).check(modifier);
     removeIfPresent(id, modifier);
     index(firstModifiers, id, modifier);
@@ -67,7 +67,7 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     return this;
   }
   
-  Modifiers<V> apply(ModifierIdentifier id, Modifier<V> modifier) {
+  Modifiers<V> apply(Identifier id, Modifier<V> modifier) {
     check(id).check(modifier);
     removeIfPresent(id, modifier);
     index(modifiers, id, modifier);
@@ -75,7 +75,7 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     return this;
   }
   
-  Modifiers<V> applyLast(ModifierIdentifier id, Modifier<V> modifier) {
+  Modifiers<V> applyLast(Identifier id, Modifier<V> modifier) {
     check(id).check(modifier);
     removeIfPresent(id, modifier);
     index(lastModifiers, id, modifier);
@@ -83,7 +83,7 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     return this;
   }
   
-  Modifiers<V> remove(ModifierIdentifier id) {
+  Modifiers<V> remove(Identifier id) {
     check(id);
     removeIfPresent(id);
     return this;
@@ -107,12 +107,12 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
         lastModifiers.iterator());
   }
   
-  private void index(LinkedList<Modifier<V>> list, ModifierIdentifier id, Modifier<V> modifier) {
+  private void index(LinkedList<Modifier<V>> list, Identifier id, Modifier<V> modifier) {
     listsById.put(id, list);
     modifiersById.put(id, modifier);
   }
   
-  private void removeIfPresent(ModifierIdentifier id) {
+  private void removeIfPresent(Identifier id) {
     LinkedList<Modifier<V>> list = listsById.get(id);
     if (list == null) {
       return;
@@ -121,7 +121,7 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     remove(list, id, modifier);
   }
 
-  private void removeIfPresent(ModifierIdentifier id, Modifier<V> modifier) {
+  private void removeIfPresent(Identifier id, Modifier<V> modifier) {
     LinkedList<Modifier<V>> list = listsById.get(id);
     if (list == null) {
       return;
@@ -129,13 +129,13 @@ class Modifiers<V> implements Iterable<Modifier<V>> {
     remove(list, id, modifier);
   }
 
-  private void remove(LinkedList<Modifier<V>> list, ModifierIdentifier id, Modifier<V> modifier) {
+  private void remove(LinkedList<Modifier<V>> list, Identifier id, Modifier<V> modifier) {
     list.remove(modifier);
     listsById.remove(id);
     modifiersById.remove(id);
   }
 
-  private Modifiers<V> check(ModifierIdentifier id) {
+  private Modifiers<V> check(Identifier id) {
     checkNotNull(id, "id cannot be null");
     return this;
   }
