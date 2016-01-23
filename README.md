@@ -87,7 +87,7 @@ Once you have defined the `PropertyIdentifier` objects for your domain, you can 
     // with a given scope (e.g. a single character in an RPG game)
     PropertyManager manager = PropertyManagers.create();
 
-    // Now create some properties, some with scalar value, and some
+    // Now create some properties, some with literal values, and some
     // with value functions that reference other properties.
     Property<Integer> level = manager.create(LEVEL)
         .withValidator(
