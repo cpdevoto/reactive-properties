@@ -1,6 +1,6 @@
 package org.devoware.reactive.property;
 
-public interface PropertyIdentifier<V> {
+public interface PropertyIdentifier<V> extends TypedIdentifier<V> {
 
   public V getDefaultValue();
   
