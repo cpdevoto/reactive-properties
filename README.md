@@ -138,7 +138,7 @@ Once you have defined the `PropertyIdentifier` objects for your domain, you can 
     assertThat(meleeAttackModifier.get(), equalTo(5));
     
     // Let's add some Gauntlets of Ogre Power, including an "apply last" ordering
-    // rule so that the maodifier for the gauntlets is applied after other modifiers
+    // rule so that the modifier for the gauntlets is applied after other modifiers
     // are applied.  We'll see why this is important below.
     
     Identifier gauntlets = strength.addModifier((context, value) -> {
@@ -152,12 +152,12 @@ Once you have defined the `PropertyIdentifier` objects for your domain, you can 
     assertThat(strengthModifier.get(), equalTo(4));
     assertThat(meleeAttackModifier.get(), equalTo(7));
     
-    // Let's add another strength-boosting item, and let's ensure the modifier function
-    // is resolved after the modifier function for the gauntlets.
+    // Let's add another strength-boosting item, and let's ensure the new modifier function
+    // is resolved before the modifier function for the gauntlets.
     
     Identifier tome = strength.addModifier((context, value) -> {
       return value + 2;
-    }, before(gauntlets));
+    });
 
     // Since the tome modifier is evaluated before the gauntlets modifier,
     // the strength score has the expected value 19 as opposed to 21. 
