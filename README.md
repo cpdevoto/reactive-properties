@@ -58,7 +58,7 @@ dependencies {
 Maven users can easily adapt these configurations within their POM files.
 
 ### Quick User Guide
-`PorpertyIdentifier` objects are typically modeled as one or more `enums` that implement the `PropertyIdentifier` interface, as shown below.  `ProperyIdentifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties which they correspond to, such as the property type, and the default value which is used in cases where a binding is requested to a property which does not yet exist.
+`PorpertyIdentifier` objects are typically modeled as one or more `enums` that implement the `PropertyIdentifier` interface, as shown below.  `ProperyIdentifier` objects are used to uniquely identify each property within a given context so that these properties can be unambiguously referenced from within property value functions. They are analogous to spreadsheet cell coordinates.  They also store some metadata about the properties that they correspond to, such as the property type, and the default value used in cases where a binding is requested to a property that does not yet exist.
 
 ```java
 public enum Attribute implements PropertyIdentifier<Integer> {
